@@ -1,4 +1,3 @@
-### Author: Veronica Centorrino
 import numpy as np
 import cvxpy as cp
 import time
@@ -157,12 +156,12 @@ def check_condition(L, rho, k_p, p, gamma):
 #####
 T = True
 F = False
-run_cvxpy = T
+run_cvxpy = F
 save_cvxpy = T
-run_dyn = T
-save_dyn = T
-run_log = T
-save_log = T
+run_dyn = F
+save_dyn = F
+run_log = F
+save_log = F
 save_fig = T
 #####
 # Parameters
@@ -217,7 +216,7 @@ if run_dyn:
         np.savez_compressed(simulation_dyn, solution_dyn=solution_dyn)
 else:
     load_dyn = np.load(simulation_dyn)
-    solution_dyn = load_OT['solution_dyn']
+    solution_dyn = load_dyn['solution_dyn']
     print("PI-PGD data loaded successfully!")
 
 #print(f"Error: ", abs(x_dynamics - x_cvxpy))
@@ -294,8 +293,8 @@ plt.figure(figsize=(8, 3.5))
 #plt.rcParams['text.usetex'] = True
 plt.plot(t_eval, mean_log_norm[1:], 'r', linewidth = 1.5, label='Mean')
 plt.fill_between(t_eval, lower_bound[1:], upper_bound[1:], color='r', alpha=0.2, label='Std Deviation')
-plt.xlabel(r'$t$', fontsize=14)
-plt.ylabel(r"$\log\left(\|z(t) - z^\star \|_{P}\right)$", fontsize=14)
+plt.xlabel(r'$t$', fontsize=19)
+plt.ylabel(r"$\log\left(\|z(t) - z^\star \|_{P}\right)$", fontsize=19)
 plt.xlim(left=0, right=t_end)
 plt.grid(True, alpha=1)
 plt.legend()
