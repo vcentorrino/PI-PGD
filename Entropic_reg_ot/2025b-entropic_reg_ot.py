@@ -290,7 +290,7 @@ C_dyn = C.flatten(order='F')
 A_dyn = construct_A(n, m)
 b_dyn = np.concatenate((a, b))
 
-max_it = 300000
+max_it = 500000
 if run_sinkhorn:
     start_time = time.perf_counter()
     P_sinkhorn = ot.sinkhorn(a, b, C, epsilon, numItermax=max_it) #, log=True)
@@ -314,14 +314,6 @@ if run_dyn:
     np.random.seed(42)
     x0 = np.random.rand(n * m) + 0.01
     x0 /= x0.sum()
-    '''lambda0 = np.random.rand(A_dyn.shape[0])
-    state0 = np.concatenate((x0, lambda0))
-    start_time = time.perf_counter()
-    p_dyn, lambda_dyn, solution_dyn = run_ot_pi_pgd_dyn(A_dyn, b_dyn, C_dyn, epsilon, state0, K_p, K_i, gamma, max_it)
-    end_time = time.perf_counter()
-    dyn_time = end_time - start_time
-    print(f"Dynamics computation time: {dyn_time:.6f} seconds")
-    P_dynamics = p_dyn.reshape(n, m, order='F')'''
 
     A_dyn_reduced = A_dyn[:-1]
     b_dyn_reduced = np.concatenate((a, b[:-1]))  # Remove the last element (redundant constraint)
@@ -337,15 +329,10 @@ if run_dyn:
 
     P_dynamics_reduced = p_dyn_reduced.reshape(n, m, order='F')
 
-    #save_to_npz(simulation_OT, P_dynamics=P_dynamics, dyn_time=dyn_time, lambda_dynamics=solution_dyn[m * n:], P_dynamics_reduced=P_dynamics_reduced, dyn_time_reduced=dyn_time_reduced, lambda_dynamics_reduced=solution_dyn_reduced[m * n:])
     save_to_npz(simulation_OT, P_dynamics_reduced=P_dynamics_reduced, dyn_time_reduced=dyn_time_reduced, lambda_dyn_reduced=lambda_dyn_reduced, p_solution_dyn=p_solution_dyn)
 
 else:
     load_OT = np.load(simulation_OT)
-    '''if 'P_dynamics' in load_OT:
-        P_dynamics = load_OT['P_dynamics']
-    else:
-        print("Warning: P_dynamics not found!")'''
 
     if 'P_dynamics_reduced' in load_OT:
         P_dynamics_reduced = load_OT['P_dynamics_reduced']
@@ -358,13 +345,10 @@ error_matrix = np.abs(P_dynamics_reduced - P_sinkhorn)
 #                                   PLOTS
 # ============================================================================
 ##########  GIF  ##########
-#G_dynamics = sparse.csr_matrix(P_dynamics) * n_points
-'''G_dynamics = P_dynamics * n_points
-make_gif(xs, xt, G_dynamics, 500, 'pi_pgd_%.3f' % epsilon)'''
 G_dynamics_reduced = P_dynamics_reduced * n_points
 make_gif(xs, xt, G_dynamics_reduced, 500, 'pi_pgd')
 
-#G_sinkhorn = sparse.csr_matrix(P_sinkhorn) * n_points
+
 G_sinkhorn = P_sinkhorn * n_points
 make_gif(xs, xt, G_sinkhorn, 500, 'sinkhorn')
 
@@ -402,7 +386,7 @@ plt.tight_layout()
 if save_fig:
     plt.savefig(f"OT_P_pipgd.png", transparent=False, bbox_inches='tight')
 
-# Plot error
+# Plot constraint error
 norm_constraint_err = np.zeros(len(p_solution_dyn))
 for i in range(len(p_solution_dyn)):
     norm_constraint_err[i] = np.linalg.norm(A_dyn@p_solution_dyn[i] - b_dyn)
@@ -416,7 +400,7 @@ plt.tight_layout()
 if save_fig:
     plt.savefig(f"OT_norm_error.png", transparent=False, bbox_inches='tight')
 
-# Plot error
+# Plot sum to 1 error
 sum1_err = np.zeros(len(p_solution_dyn))
 for i in range(len(p_solution_dyn)):
     sum1_err[i] = np.linalg.norm(np.abs(np.sum(p_solution_dyn[i])-1))
