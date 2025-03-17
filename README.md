@@ -7,7 +7,11 @@ The repository contains the following files:
 
 (ii) 2025a-Ex_constrained_lasso.py with the necessary code to reproduce the figures featured in the Numerical Experiments paragraph in the Equality-constrained LASSO Section of the manuscript.
 
-(ii) 2025b-entropic_reg_ot.py with the necessary code to reproduce the figures featured in the Numerical Experiments paragraph in the Entropic-Regularized Optimal Transport of the manuscript.
+(ii) Entropic_reg_ot folder containing:
+       (i) 2025b-entropic_reg_ot.py with the necessary code to reproduce the figures featured in the Numerical Experiments paragraph in the Entropic-Regularized Optimal Transport of the manuscript.
+           The part of the code for stippling the points is from the open source \url{https://github.com/ncassereau/pictures-optimal-transport/tree/master}. Please note we are interested in testing our method for solving Entropic-Regularized             Optimal Transport, and therefore we compare it with the Sinkhorn algorithm.
+      (ii) pi_pgd.gif and sinkhorn.gif show the complete transformations of number 4 into number 1.
+     (iii) mnist_data_set.npz containing the stippled version of the MNIST dataset used for the simulation.
 
 
 **Authors of the final code and figures: Veronica Centorrino and Francesca Rossi**.
