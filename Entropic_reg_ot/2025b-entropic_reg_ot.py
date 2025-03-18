@@ -23,7 +23,7 @@ plt.rcParams['axes.facecolor'] = 'white'
 # ============================================================================
 #                                  Functions
 # ============================================================================
-#IMAGE
+# IMAGE
 def convert_to_black_probabilities(im):
     flattened_array = im.reshape(-1)   # 0 is black, 255 is white
     blackness = 255 - flattened_array  # 0 is white, 255 is black
@@ -125,7 +125,7 @@ def make_gif(xs, xt, G, n_frames, gif_name):
 
 ################ PI-PGD
 def construct_A(n, m):
-    """Constructs the constraint matrix A for the vectorized optimal transport problem."""
+    # Construct the constraint matrix A for the vectorized optimal transport problem
     ones_m = np.ones((1, m))
     ones_n = np.ones((1, n))
     A = np.vstack([
@@ -135,17 +135,6 @@ def construct_A(n, m):
 
 
 def pi_pgd_dyn(state, grad_f, A, b_eq, K_p, K_i, gamma):
-    """
-    Computes the PI-proximal dynamics
-    :param state: Current state vector (x, lambda)
-    :param grad_f: Gradient of the cost function
-    :param A: Constraint matrix
-    :param b: Constraint vector
-    :param K_p: Proportional gain
-    :param K_i: Integral gain
-    :param gamma: Step size parameter
-    :return: Time derivative of state
-    """
     mn = A.shape[1]
     p = state[:mn]
     lambd = state[mn:]
@@ -155,32 +144,22 @@ def pi_pgd_dyn(state, grad_f, A, b_eq, K_p, K_i, gamma):
 
     return np.concatenate((dp_dt, dlambda_dt))
 
+
 def run_ot_pi_pgd_dyn(A, b_eq, C, epsilon, state_0, K_p, K_i, gamma, max_iter, dt=0.01, tol=1e-6):
-    """
-    Solves the entropic regularized optimal transport problem in vectorized form using projected gradient descent.
-    :param a: Source distribution (n,)
-    :param b: Target distribution (m,)
-    :param C: Cost matrix (n, m)
-    :param epsilon: Entropy regularization parameter
-    :param max_iter: Number of iterations
-    :param lr: Learning rate for gradient descent
-    :return: Optimal transport plan in vectorized form (mn,)
-    """
     mn = C.shape[0]
 
     # Euler step simulation
     state = state_0
-    #solution = [state_0]
-    p_solution_dyn = [state_0[:m * n]]
+    p_solution_dyn = [state_0[:mn]]
     for _ in range(max_iter):
-        grad_f = C + epsilon * (1 + np.log(np.clip(state[:m * n], 1e-10, None)))
+        grad_f = C + epsilon * (1 + np.log(np.clip(state[:mn], 1e-10, None)))
         state_new = state + dt * pi_pgd_dyn(state, grad_f, A, b_eq, K_p, K_i, gamma)
 
         if np.linalg.norm(state_new - state) < tol:
             print("The PI_PGD converged")
             break
         state = state_new
-        p_solution_dyn.append(state[:m * n])
+        p_solution_dyn.append(state[:mn])
 
     p = state[:mn]
     lambd = state[mn:]
@@ -190,7 +169,7 @@ def run_ot_pi_pgd_dyn(A, b_eq, C, epsilon, state_0, K_p, K_i, gamma, max_iter, d
 
 
 def save_to_npz(filename, **kwargs):
-    """ Append new data to an existing .npz file or create a new one. """
+    # Append new data to an existing .npz file or create a new one
     try:
         existing_data = dict(np.load(filename, allow_pickle=True))  # Fix: allow_pickle=True
     except FileNotFoundError:
@@ -317,7 +296,7 @@ if run_dyn:
 
     A_dyn_reduced = A_dyn[:-1]
     b_dyn_reduced = np.concatenate((a, b[:-1]))  # Remove the last element (redundant constraint)
-    # Initial conditions
+
     np.random.seed(331)
     lambda0_reduced = np.random.rand(A_dyn_reduced.shape[0])
     state0_reduced = np.concatenate((x0, lambda0_reduced))
@@ -341,13 +320,15 @@ else:
         print("Warning: P_dynamics_reduced not found!")
 
 error_matrix = np.abs(P_dynamics_reduced - P_sinkhorn)
+
+
 # ============================================================================
 #                                   PLOTS
 # ============================================================================
+
 ##########  GIF  ##########
 G_dynamics_reduced = P_dynamics_reduced * n_points
 make_gif(xs, xt, G_dynamics_reduced, 500, 'pi_pgd')
-
 
 G_sinkhorn = P_sinkhorn * n_points
 make_gif(xs, xt, G_sinkhorn, 500, 'sinkhorn')
@@ -355,6 +336,7 @@ make_gif(xs, xt, G_sinkhorn, 500, 'sinkhorn')
 
 ##########################
 
+# Plot P obtained via PI-PGD and Sinkhorn
 fig1, axes1 = plt.subplots(1, 3, figsize=(12, 5))
 axes1[0].imshow(P_dynamics_reduced, cmap='Blues')
 axes1[0].set_title("PI-Prox")
@@ -373,9 +355,12 @@ plt.colorbar(axes1[1].imshow(P_sinkhorn, cmap='Blues'), ax=axes1[1], shrink=0.6)
 plt.colorbar(axes1[2].imshow(error_matrix, cmap='Reds'), ax=axes1[2], shrink=0.6)
 plt.tight_layout()
 if save_fig:
-    plt.savefig(f"Error_pipgd_sinkhorn_eps%.3f.png" % epsilon, transparent=False, bbox_inches='tight')
+    plt.savefig(f"Comp_pipgd_sinkhorn.png", transparent=False, bbox_inches='tight')
 
 
+##########################
+
+# Plot P
 plt.figure(figsize=(7, 7))
 plt.imshow(P_dynamics_reduced, cmap='Blues')
 plt.title("P", fontsize=20)
@@ -386,7 +371,9 @@ plt.tight_layout()
 if save_fig:
     plt.savefig(f"OT_P_pipgd.png", transparent=False, bbox_inches='tight')
 
-# Plot constraint error
+##########################
+
+# Plot constraint error over iterations
 norm_constraint_err = np.zeros(len(p_solution_dyn))
 for i in range(len(p_solution_dyn)):
     norm_constraint_err[i] = np.linalg.norm(A_dyn@p_solution_dyn[i] - b_dyn)
@@ -399,6 +386,8 @@ plt.grid()
 plt.tight_layout()
 if save_fig:
     plt.savefig(f"OT_norm_error.png", transparent=False, bbox_inches='tight')
+
+##########################
 
 # Plot sum to 1 error
 sum1_err = np.zeros(len(p_solution_dyn))
@@ -414,7 +403,9 @@ plt.tight_layout()
 if save_fig:
     plt.savefig(f"OT_sum1_error.png", transparent=False, bbox_inches='tight')
 
+##########################
 
+# Plot constraint error at the last iteration
 plt.figure(figsize=(7, 6))
 err_con = np.abs(A_dyn@(P_dynamics_reduced.flatten(order='F')) - b_dyn)
 plt.scatter(np.linspace(0, n+m-1, n+m), err_con)
