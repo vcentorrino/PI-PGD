@@ -18,4 +18,4 @@ The repository contains the following files:
 
 
 ## References
-[1] V. Centorrino, F. Rossi, F. Bullo, and G. Russo _Proximal Gradient Dynamics and Feedback Control for Equality-Constrained Composite Optimization_, 2025, [URL](https://arxiv.org/abs/2503.15093).
+[1] V. Centorrino, F. Rossi, F. Bullo, and G. Russo, _Proximal Gradient Dynamics and Feedback Control for Equality-Constrained Composite Optimization_, 2025, [URL](https://arxiv.org/abs/2503.15093).
