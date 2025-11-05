@@ -1,5 +1,5 @@
 # PI-PGD
-This repository contains the extended technical report of the paper “Proximal Gradient Dynamics and Feedback Control for Equality-Constrained Composite Optimization” by Veronica Centorrino, Francesca Rossi, Prof. Giovanni Russo, and Prof. Francesco Bullo, and the code needed to reproduce the simulations there presented.
+This repository contains the code needed to reproduce the simulations presented in the paper titled _Proximal Gradient Dynamics and Feedback Control for Equality-Constrained Composite Optimization_ by Veronica Centorrino, Francesca Rossi, Prof. Giovanni Russo, and Prof. Francesco Bullo ([arXiv](https://arxiv.org/abs/2503.15093)).
 
 The repository contains the following files:
 
@@ -15,3 +15,7 @@ The repository contains the following files:
 
 
 **Authors of the final code and figures: Veronica Centorrino and Francesca Rossi**.
+
+
+## References
+[1] V. Centorrino, F. Rossi, F. Bullo, and G. Russo _Proximal Gradient Dynamics and Feedback Control for Equality-Constrained Composite Optimization_, 2025, [URL](https://arxiv.org/abs/2503.15093).
